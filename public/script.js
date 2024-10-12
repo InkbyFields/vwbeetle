@@ -1,45 +1,92 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Add event listeners after DOM is loaded
-    const registerBtn = document.getElementById('registerBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const postEntryBtn = document.getElementById('postEntryBtn');
+document.getElementById('registerBtn').addEventListener('click', registerUser);
+document.getElementById('loginBtn').addEventListener('click', loginUser);
+document.getElementById('uploadBtn').addEventListener('click', uploadImages);
+document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
+document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-    if (registerBtn) {
-        registerBtn.addEventListener('click', registerUser);
-    }
-
-    if (loginBtn) {
-        loginBtn.addEventListener('click', loginUser);
-    }
-
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', uploadImages);
-    }
-
-    if (postEntryBtn) {
-        postEntryBtn.addEventListener('click', postUpdate);
-    }
+// Switch between login and register views
+document.getElementById('showRegister').addEventListener('click', () => {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'block';
+});
+document.getElementById('showLogin').addEventListener('click', () => {
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'block';
 });
 
-// Function to handle posting a logbook entry
-async function postUpdate() {
-    const logContainer = document.querySelector('.logbook-entries');
-    const textarea = document.getElementById('logInput');
-    const entryContent = textarea.value;
+function registerUser() {
+    const username = document.getElementById('usernameRegister').value;
+    const password = document.getElementById('passwordRegister').value;
 
-    // Validate input
+    fetch('https://vwbeetle-backend.onrender.com/api/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.token) {
+            alert('Registration successful!');
+            showProfilePage(username);
+        } else {
+            document.getElementById('registerError').textContent = data.message || 'Registration failed';
+        }
+    })
+    .catch(err => {
+        console.error('Error during registration:', err);
+    });
+}
+
+function loginUser() {
+    const username = document.getElementById('usernameLogin').value;
+    const password = document.getElementById('passwordLogin').value;
+
+    fetch('https://vwbeetle-backend.onrender.com/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+            showProfilePage(username);
+        } else {
+            document.getElementById('loginError').textContent = 'Invalid credentials';
+        }
+    })
+    .catch(err => {
+        console.error('Error during login:', err);
+    });
+}
+
+function showProfilePage(username) {
+    document.getElementById('usernameDisplay').textContent = username;
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('profileSection').style.display = 'block';
+}
+
+function logoutUser() {
+    localStorage.removeItem('token');
+    document.getElementById('profileSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'block';
+}
+
+async function postUpdate() {
+    const entryContent = document.getElementById('logInput').value;
+    const logContainer = document.querySelector('.logbook-entries');
+
     if (!entryContent) {
         alert('Please enter a log entry.');
         return;
     }
 
-    // Send the log entry to the backend
     const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/logbook', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({ entry: entryContent })
     });
@@ -48,44 +95,37 @@ async function postUpdate() {
         const newEntry = document.createElement('p');
         newEntry.textContent = entryContent;
         logContainer.appendChild(newEntry);
-        textarea.value = ''; // Clear the textarea
+        document.getElementById('logInput').value = '';
     } else {
         console.error('Failed to save log entry:', await response.json());
         alert('Failed to save log entry');
     }
 }
 
-// Function to handle image uploads
 async function uploadImages() {
     const imageInput = document.getElementById('imageInput');
-    const gallery = document.querySelector('.image-gallery');
     const files = imageInput.files;
     const formData = new FormData();
 
-    // Validate file input
     if (files.length === 0) {
         alert('Please select at least one image to upload.');
         return;
     }
 
-    Array.from(files).forEach(file => {
-        formData.append('images', file); // Append each file to the form data
-    });
+    Array.from(files).forEach(file => formData.append('images', file));
 
-    // Send the images to the backend
     const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
-        },
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData
     });
 
     if (response.ok) {
-        const data = await response.json(); // Get the uploaded image URLs from the backend
+        const data = await response.json();
+        const gallery = document.querySelector('.image-gallery');
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `/uploads/${imageUrl}`; // Adjust based on how you serve the uploaded images
+            img.src = `https://vwbeetle-backend.onrender.com/uploads/${imageUrl}`;
             gallery.appendChild(img);
         });
     } else {
@@ -93,50 +133,3 @@ async function uploadImages() {
         alert('Failed to upload images');
     }
 }
-
-// Function to handle user registration
-async function registerUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
-
-    if (response.ok) {
-        alert('User registered successfully!');
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
-    }
-}
-
-// Function to handle user login
-async function loginUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token); // Store token
-        alert('Login successful!');
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
-    }
-}
-
-// Debugging to ensure that the script runs
-console.log('Script loaded successfully');
