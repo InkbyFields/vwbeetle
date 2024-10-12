@@ -21,8 +21,10 @@ if (!fs.existsSync(uploadDir)) {
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'https://vwbeetle.vercel.app',  // Allow requests from your frontend
+  origin: 'https://vwbeetle.vercel.app',  // Allow requests from your Vercel frontend
   credentials: true,
+  methods: ['GET', 'POST', 'DELETE'],  // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow necessary headers
 }));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
@@ -69,17 +71,6 @@ app.delete('/upload/:filename', (req, res) => {
     }
     res.status(200).json({ message: 'File deleted successfully' });
   });
-});
-
-// Logbook Entry Route
-app.post('/api/users/logbook', (req, res) => {
-  const { entry } = req.body;
-
-  if (!entry) {
-    return res.status(400).json({ message: 'Log entry cannot be empty' });
-  }
-
-  res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
 // Basic route for root
