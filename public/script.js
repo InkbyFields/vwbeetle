@@ -68,36 +68,6 @@ async function loadProfile() {
     }
 }
 
-// Function to handle posting a logbook entry
-async function postUpdate() {
-    const logContainer = document.querySelector('.logbook-entries');
-    const textarea = document.getElementById('logInput');
-    const entryContent = textarea.value;
-
-    if (!entryContent) {
-        alert('Please enter a log entry.');
-        return;
-    }
-
-    const response = await fetch(`${apiUrl}/api/users/logbook`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ entry: entryContent })
-    });
-
-    if (response.ok) {
-        const newEntry = document.createElement('p');
-        newEntry.textContent = entryContent;
-        logContainer.appendChild(newEntry);
-        textarea.value = ''; // Clear the textarea
-    } else {
-        alert('Failed to save log entry');
-    }
-}
-
 // Function to handle image uploads
 async function uploadImages() {
     const imageInput = document.getElementById('imageInput');
@@ -207,4 +177,3 @@ function openImageInFullSize(imageUrl) {
 
     document.body.appendChild(fullSizeOverlay);
 }
-
