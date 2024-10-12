@@ -11,15 +11,16 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// CORS setup to allow requests from Vercel
+// CORS setup to allow requests from Vercel frontend
 const corsOptions = {
   origin: 'https://vwbeetle.vercel.app', // Frontend URL
-  methods: 'GET,POST,PUT,DELETE',
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
-// Serve static files
+// Serve static files (ensure the 'uploads' folder exists)
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -52,6 +53,7 @@ app.post('/upload', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
+      console.error('File upload error:', err);
       return res.status(500).json({ message: 'File upload error', error: err });
     }
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
@@ -86,4 +88,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
