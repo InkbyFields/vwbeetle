@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'https://vwbeetle.vercel.app',
+  origin: 'https://vwbeetle.vercel.app', // Allow requests from your Vercel frontend
   credentials: true
 }));
 app.use(rateLimit({
@@ -52,13 +52,12 @@ app.post('/upload', (req, res) => {
       return res.status(400).json({ message: 'No files were uploaded.' });
     }
 
-    // Upload to S3
     const file = files.images; // Adjust based on your input name for images
     const uploadParams = {
       Bucket: process.env.AWS_S3_BUCKET_NAME, // The name of your S3 bucket
       Key: `${Date.now()}_${file.originalFilename}`, // Unique filename
       Body: fs.createReadStream(file.filepath),
-      ContentType: file.mimetype,
+      ContentType: file.mimetype
     };
 
     s3.upload(uploadParams, (s3Err, data) => {
@@ -69,7 +68,7 @@ app.post('/upload', (req, res) => {
 
       res.status(201).json({
         message: 'Files uploaded successfully',
-        fileUrl: data.Location, // This is the URL of the uploaded file
+        fileUrl: data.Location // This is the URL of the uploaded file
       });
     });
   });
