@@ -20,28 +20,35 @@
                     <li><a href="#gallery">Image Gallery</a></li>
                     <li><a href="#logbook">Restoration Logbook</a></li>
                     <li><a href="#profile">Profile</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li> <!-- Logout button -->
                 </ul>
             </nav>
         </aside>
         <main>
+            <!-- Profile Section -->
+            <section id="profile" style="display: none;">
+                <h2>Profile</h2>
+                <div id="userProfile">
+                    <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+                    <div id="userImages"></div>
+                    <div id="userLogbook"></div>
+                </div>
+            </section>
+
+            <!-- Gallery Section -->
             <section id="gallery">
                 <h2>Image Gallery</h2>
                 <input type="file" id="imageInput" multiple accept="image/*" />
                 <button id="uploadBtn">Upload</button>
                 <div class="image-gallery"></div>
             </section>
+
+            <!-- Logbook Section -->
             <section id="logbook">
                 <h2>Restoration Logbook</h2>
                 <textarea id="logInput" placeholder="Describe the restoration progress..."></textarea>
                 <button id="postEntryBtn">Post Entry</button>
                 <div class="logbook-entries"></div>
-            </section>
-            <section id="profile">
-                <h2>User Profile</h2>
-                <input type="text" id="username" placeholder="Username" />
-                <input type="password" id="password" placeholder="Password" />
-                <button id="loginBtn">Login</button>
-                <button id="registerBtn">Register</button>
             </section>
         </main>
     </div>
