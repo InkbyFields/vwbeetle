@@ -11,26 +11,26 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Ensure uploads directory exists
+// CORS setup to allow requests from Vercel
+const corsOptions = {
+  origin: 'https://vwbeetle.vercel.app', // Frontend URL
+  methods: 'GET,POST,PUT,DELETE',
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Serve static files
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-    console.log('Created uploads directory');
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads directory');
 }
 
-// Serve static files dynamically
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(uploadsDir)); // Serve the uploaded images
+app.use('/uploads', express.static(uploadsDir));
 
 // Middleware
 app.use(express.json());
 app.use(helmet());
-
-// Allow CORS requests from your Vercel frontend
-app.use(cors({
-  origin: 'https://vwbeetle.vercel.app'  // Allow only your frontend to access the backend
-}));
-
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   max: 100,
@@ -52,10 +52,9 @@ app.post('/upload', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error(err); // Log the error for debugging
       return res.status(500).json({ message: 'File upload error', error: err });
     }
-    const uploadedFiles = Object.values(files).map(file => path.basename(file.filepath));
+    const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
       message: 'Files uploaded successfully',
       files: uploadedFiles,
