@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(cors());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,
+  max: 100, // Limit each IP to 100 requests per windowMs
 }));
 
 // MongoDB Connection
@@ -67,20 +67,8 @@ app.get('/', (req, res) => {
 // Integrate the user authentication routes
 app.use('/api/users', userRoutes);
 
-// Catch-all route for frontend routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 // Listen on port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
-
-
-
-
-
-
