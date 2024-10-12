@@ -10,10 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (postEntryBtn) postEntryBtn.addEventListener('click', postUpdate);
     if (uploadBtn) uploadBtn.addEventListener('click', uploadImages);
 
-    // If token exists, redirect to profile page
+    // Check if the user is logged in, but don't auto-login
     const token = localStorage.getItem('token');
     if (token && window.location.pathname === '/') {
-        window.location.href = '/profile.html'; // Redirect to profile page if already logged in
+        // Don't redirect automatically, allow them to press login
+        document.getElementById('loginBtn').disabled = false; // Enable login button
     }
 });
 
