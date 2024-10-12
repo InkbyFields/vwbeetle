@@ -39,6 +39,8 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 
 // File Upload Route
 app.post('/upload', (req, res) => {
+  console.log("Received upload request");  // Add logging to confirm request is received
+
   const form = new formidable.IncomingForm({
     uploadDir: uploadDir,
     keepExtensions: true,
@@ -46,11 +48,14 @@ app.post('/upload', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error('File upload error:', err);
-      return res.status(500).json({ message: 'File upload error', error: err });
+      console.error('Form parsing error:', err);  // Log form parsing errors
+      return res.status(500).json({ message: 'File upload error', error: err.message });
     }
+
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     const fileUrls = uploadedFiles.map(file => `/uploads/${file}`);
+
+    console.log("Files uploaded successfully:", fileUrls);  // Log uploaded files
 
     res.status(201).json({
       message: 'Files uploaded successfully',
