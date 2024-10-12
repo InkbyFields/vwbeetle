@@ -1,131 +1,130 @@
-document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
-document.getElementById('uploadBtn').addEventListener('click', uploadImages);
-document.getElementById('registerBtn').addEventListener('click', registerUser);
-document.getElementById('loginBtn').addEventListener('click', loginUser);
+document.addEventListener("DOMContentLoaded", function() {
+    const postEntryBtn = document.getElementById('postEntryBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginBtn = document.getElementById('loginBtn');
 
-// Function to handle posting a logbook entry
-async function postUpdate() {
-    const logContainer = document.querySelector('.logbook-entries');
-    const textarea = document.getElementById('logInput');
-    const entryContent = textarea.value;
+    if (postEntryBtn) postEntryBtn.addEventListener('click', postUpdate);
+    if (uploadBtn) uploadBtn.addEventListener('click', uploadImages);
+    if (registerBtn) registerBtn.addEventListener('click', registerUser);
+    if (loginBtn) loginBtn.addEventListener('click', loginUser);
 
-    // Validate input
-    if (!entryContent) {
-        alert('Please enter a log entry.');
-        return;
-    }
+    // Function to handle posting a logbook entry
+    async function postUpdate() {
+        const logContainer = document.querySelector('.logbook-entries');
+        const textarea = document.getElementById('logInput');
+        const entryContent = textarea.value;
 
-    // Send the log entry to the backend
-    const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/logbook', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
-        },
-        body: JSON.stringify({ entry: entryContent })
-    });
+        if (!entryContent) {
+            alert('Please enter a log entry.');
+            return;
+        }
 
-    if (response.ok) {
-        const newEntry = document.createElement('p');
-        newEntry.textContent = entryContent;
-        logContainer.appendChild(newEntry);
-        textarea.value = ''; // Clear the textarea
-    } else {
-        console.error('Failed to save log entry:', await response.json());
-        alert('Failed to save log entry');
-    }
-}
-
-// Function to handle image uploads
-async function uploadImages() {
-    const imageInput = document.getElementById('imageInput');
-    const gallery = document.querySelector('.image-gallery');
-    const files = imageInput.files;
-    const formData = new FormData();
-
-    // Validate file input
-    if (files.length === 0) {
-        alert('Please select at least one image to upload.');
-        return;
-    }
-
-    Array.from(files).forEach(file => {
-        formData.append('images', file); // Append each file to the form data
-    });
-
-    // Send the images to the backend
-    try {
-        const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/logbook', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here if needed
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: formData
+            body: JSON.stringify({ entry: entryContent })
         });
 
         if (response.ok) {
-            const data = await response.json(); // Get the uploaded image URLs from the backend
-            data.files.forEach(imageUrl => {
-                const img = new Image();
-                img.src = `/uploads/${imageUrl}`; // Adjust based on how you serve the uploaded images
-                gallery.appendChild(img);
+            const newEntry = document.createElement('p');
+            newEntry.textContent = entryContent;
+            logContainer.appendChild(newEntry);
+            textarea.value = '';
+        } else {
+            console.error('Failed to save log entry:', await response.json());
+            alert('Failed to save log entry');
+        }
+    }
+
+    // Function to handle image uploads
+    async function uploadImages() {
+        const imageInput = document.getElementById('imageInput');
+        const gallery = document.querySelector('.image-gallery');
+        const files = imageInput.files;
+        const formData = new FormData();
+
+        if (files.length === 0) {
+            alert('Please select at least one image to upload.');
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            formData.append('images', file);
+        });
+
+        try {
+            const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
             });
-            alert('Images uploaded successfully!');
+
+            if (response.ok) {
+                const data = await response.json();
+                data.files.forEach(imageUrl => {
+                    const img = new Image();
+                    img.src = `/uploads/${imageUrl}`;
+                    gallery.appendChild(img);
+                });
+                alert('Images uploaded successfully!');
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to upload images:', errorData);
+                alert(`Error: ${errorData.message}`);
+            }
+        } catch (error) {
+            console.error('Error during image upload:', error);
+            alert('Failed to upload images.');
+        }
+    }
+
+    // Function to handle user registration
+    async function registerUser() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            alert('User registered successfully!');
         } else {
             const errorData = await response.json();
-            console.error('Failed to upload images:', errorData);
-            alert(`Error: ${errorData.message}`);
+            alert(errorData.message);
         }
-    } catch (error) {
-        console.error('Error during image upload:', error);
-        alert('Failed to upload images.');
     }
-}
 
-// Function to handle user registration
-async function registerUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    // Function to handle user login
+    async function loginUser() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-    const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/register', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
 
-    if (response.ok) {
-        alert('User registered successfully!');
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            alert('Login successful!');
+        } else {
+            const errorData = await response.json();
+            alert(errorData.message);
+        }
     }
-}
-
-// Function to handle user login
-async function loginUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token); // Store token
-        alert('Login successful!');
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
-    }
-}
-
-// Debugging to ensure that the script runs
-console.log('Script loaded successfully');
-
+});
