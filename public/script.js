@@ -1,30 +1,97 @@
-const backendUrl = 'https://vwbeetle.vercel.app'; // Updated with Vercel URL
-
+document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
+document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 document.getElementById('registerBtn').addEventListener('click', registerUser);
 document.getElementById('loginBtn').addEventListener('click', loginUser);
+
+// Replace with your Render backend URL
+const BASE_URL = 'https://vwbeetle-backend.onrender.com';
+
+// Function to handle posting a logbook entry
+async function postUpdate() {
+    const logContainer = document.querySelector('.logbook-entries');
+    const textarea = document.getElementById('logInput');
+    const entryContent = textarea.value;
+
+    if (!entryContent) {
+        alert('Please enter a log entry.');
+        return;
+    }
+
+    const response = await fetch(`${BASE_URL}/api/users/logbook`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ entry: entryContent })
+    });
+
+    if (response.ok) {
+        const newEntry = document.createElement('p');
+        newEntry.textContent = entryContent;
+        logContainer.appendChild(newEntry);
+        textarea.value = '';
+    } else {
+        console.error('Failed to save log entry');
+        alert('Failed to save log entry');
+    }
+}
+
+// Function to handle image uploads
+async function uploadImages() {
+    const imageInput = document.getElementById('imageInput');
+    const gallery = document.querySelector('.image-gallery');
+    const files = imageInput.files;
+    const formData = new FormData();
+
+    if (files.length === 0) {
+        alert('Please select at least one image to upload.');
+        return;
+    }
+
+    Array.from(files).forEach(file => {
+        formData.append('images', file);
+    });
+
+    const response = await fetch(`${BASE_URL}/upload`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        data.files.forEach(imageUrl => {
+            const img = new Image();
+            img.src = `/uploads/${imageUrl}`;
+            gallery.appendChild(img);
+        });
+    } else {
+        console.error('Failed to upload images');
+        alert('Failed to upload images');
+    }
+}
 
 // Function to handle user registration
 async function registerUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    try {
-        const response = await fetch(`${backendUrl}/api/users/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
+    const response = await fetch(`${BASE_URL}/api/users/register`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-        if (response.ok) {
-            alert('User registered successfully!');
-        } else {
-            const errorData = await response.json();
-            alert(errorData.message.join(', ')); // Display multiple errors
-        }
-    } catch (error) {
-        console.error('Error during registration:', error);
+    if (response.ok) {
+        alert('User registered successfully!');
+    } else {
+        const errorData = await response.json();
+        alert(errorData.message);
     }
 }
 
@@ -33,26 +100,20 @@ async function loginUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    try {
-        const response = await fetch(`${backendUrl}/api/users/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
+    const response = await fetch(`${BASE_URL}/api/users/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('token', data.token); // Store the token
-            alert('Login successful!');
-        } else {
-            const errorData = await response.json();
-            alert(errorData.message.join(', '));
-        }
-    } catch (error) {
-        console.error('Error during login:', error);
+    if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        alert('Login successful!');
+    } else {
+        const errorData = await response.json();
+        alert(errorData.message);
     }
 }
-
-console.log('Script loaded successfully');
