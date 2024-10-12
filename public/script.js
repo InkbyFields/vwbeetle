@@ -1,7 +1,25 @@
-document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
-document.getElementById('uploadBtn').addEventListener('click', uploadImages);
-document.getElementById('registerBtn').addEventListener('click', registerUser);
-document.getElementById('loginBtn').addEventListener('click', loginUser);
+document.addEventListener('DOMContentLoaded', function () {
+    const postEntryBtn = document.getElementById('postEntryBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const loginBtn = document.getElementById('loginBtn');
+
+    if (postEntryBtn) {
+        postEntryBtn.addEventListener('click', postUpdate);
+    }
+
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', uploadImages);
+    }
+
+    if (registerBtn) {
+        registerBtn.addEventListener('click', registerUser);
+    }
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', loginUser);
+    }
+});
 
 // Function to handle posting a logbook entry
 async function postUpdate() {
@@ -116,6 +134,5 @@ async function loginUser() {
     }
 }
 
-// Debugging to ensure that the script runs
 console.log('Script loaded successfully');
 
