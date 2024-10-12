@@ -8,61 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/index.html'; // Redirect to login if not authenticated
     }
 
-    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', () => {
         localStorage.removeItem('token');
         window.location.href = '/index.html'; // Redirect to login page
     });
 });
 
-document.getElementById('postEntryBtn')?.addEventListener('click', postUpdate);
-document.getElementById('uploadBtn')?.addEventListener('click', uploadImages);
-document.getElementById('loginBtn')?.addEventListener('click', loginUser);
-document.getElementById('registerBtn')?.addEventListener('click', registerUser);
-
-// Function to handle login
-async function loginUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch(`${apiUrl}/api/users/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token); // Store token in localStorage
-        alert('Login successful!');
-        window.location.href = '/profile.html'; // Redirect to profile page after login
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
-    }
-}
-
-// Function to handle user registration
-async function registerUser() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const response = await fetch(`${apiUrl}/api/users/register`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
-        alert('User registered successfully!');
-    } else {
-        const errorData = await response.json();
-        alert(errorData.message);
-    }
-}
+document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
+document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 
 // Function to load user profile data (images and logbook entries)
 async function loadProfile() {
@@ -71,18 +24,18 @@ async function loadProfile() {
 
     const response = await fetch(`${apiUrl}/api/users/profile`, {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
     });
 
     if (response.ok) {
         const data = await response.json();
 
         // Display user's images in the gallery
-        data.images.forEach((imageUrl) => {
+        data.images.forEach(imageUrl => {
             const img = new Image();
             img.src = `${apiUrl}/uploads/${imageUrl}`;
-            img.alt = 'Uploaded image';
+            img.alt = "Uploaded image";
             img.classList.add('uploaded-image');
 
             img.style.width = '150px'; // Scaled-down size
@@ -109,6 +62,7 @@ async function loadProfile() {
             imgContainer.appendChild(deleteBtn);
             gallery.appendChild(imgContainer);
         });
+
     } else {
         alert('Failed to load profile data');
     }
@@ -126,25 +80,25 @@ async function uploadImages() {
         return;
     }
 
-    Array.from(files).forEach((file) => {
+    Array.from(files).forEach(file => {
         formData.append('images', file);
     });
 
     const response = await fetch(`${apiUrl}/upload`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: formData,
+        body: formData
     });
 
     if (response.ok) {
         const data = await response.json();
 
-        data.files.forEach((imageUrl) => {
+        data.files.forEach(imageUrl => {
             const img = new Image();
             img.src = `${apiUrl}/uploads/${imageUrl}`;
-            img.alt = 'Uploaded image';
+            img.alt = "Uploaded image";
             img.classList.add('uploaded-image');
 
             img.style.width = '150px'; // Scaled-down size
@@ -181,8 +135,8 @@ async function deleteImage(imageUrl, imgContainer) {
     const response = await fetch(`${apiUrl}/upload/${imageUrl}`, {
         method: 'DELETE',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
     });
 
     if (response.ok) {
@@ -210,7 +164,7 @@ function openImageInFullSize(imageUrl) {
 
     const fullSizeImage = new Image();
     fullSizeImage.src = imageUrl;
-    fullSizeImage.alt = 'Full-size uploaded image';
+    fullSizeImage.alt = "Full-size uploaded image";
     fullSizeImage.style.maxWidth = '90%';
     fullSizeImage.style.maxHeight = '90%';
 
