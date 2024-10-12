@@ -4,9 +4,8 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    profilePicture: { type: String },  // URL to profile picture
-    images: [{ type: String }],  // Array of image URLs
-    logbook: [{ entry: String, createdAt: { type: Date, default: Date.now } }]  // Logbook entries with timestamps
+    profilePicture: { type: String }, // URL to profile picture
+    bio: { type: String }, // Short biography
 });
 
 // Hash the password before saving
@@ -16,12 +15,9 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
-// Method to compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
-module.exports = User;
-chema);
 module.exports = User;
