@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volkswagen Beetle Restoration - Login</title>
+    <title>Volkswagen Beetle Restoration</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container">
-        <h1>Volkswagen Beetle Restoration</h1>
-        <div class="login-box">
-            <h2>Login</h2>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button id="loginBtn">Login</button>
-            <p>Don't have an account? <span id="registerLink">Sign Up</span></p>
-        </div>
+    <div class="container">
+        <header>
+            <h1>Beetle Restoration Journey</h1>
+        </header>
+        <aside>
+            <nav>
+                <ul>
+                    <li><a href="#gallery">Image Gallery</a></li>
+                    <li><a href="#logbook">Restoration Logbook</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main>
+            <section id="gallery">
+                <h2>Image Gallery</h2>
+                <input type="file" id="imageInput" multiple accept="image/*" />
+                <input type="text" id="imageCategory" placeholder="Enter category for this image" />
+                <button id="uploadBtn">Upload</button>
+                <div class="image-gallery"></div>
+            </section>
+            <section id="logbook">
+                <h2>Restoration Logbook</h2>
+                <textarea id="logInput" placeholder="Describe the restoration progress..."></textarea>
+                <button id="postEntryBtn">Post Entry</button>
+                <div class="logbook-entries"></div>
+            </section>
+            <section id="profile">
+                <h2>User Profile</h2>
+                <input type="text" id="username" placeholder="Username" />
+                <input type="password" id="password" placeholder="Password" />
+                <button id="loginBtn">Login</button>
+                <button id="registerBtn">Register</button>
+            </section>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
-
