@@ -12,7 +12,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.1234.0",  // or the latest stable version
+    "aws-sdk": "^2.1234.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
