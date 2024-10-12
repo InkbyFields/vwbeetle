@@ -20,13 +20,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Serve static files (ensure the 'uploads' folder exists)
+// Serve static files
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads directory');
 }
-
 app.use('/uploads', express.static(uploadsDir));
 
 // Middleware
@@ -56,7 +55,12 @@ app.post('/upload', (req, res) => {
       console.error('File upload error:', err);
       return res.status(500).json({ message: 'File upload error', error: err });
     }
-    const uploadedFiles = Object.values(files).map(file => file.newFilename);
+
+    const uploadedFiles = Object.values(files).map(file => {
+      const fileUrl = `/uploads/${path.basename(file.filepath)}`; // Get the filename only
+      return fileUrl;
+    });
+
     res.status(201).json({
       message: 'Files uploaded successfully',
       files: uploadedFiles,
