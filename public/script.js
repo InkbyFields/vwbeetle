@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Event listeners
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
     const postEntryBtn = document.getElementById('postEntryBtn');
@@ -10,10 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (postEntryBtn) postEntryBtn.addEventListener('click', postUpdate);
     if (uploadBtn) uploadBtn.addEventListener('click', uploadImages);
 
-    // Check if the user is logged in, but don't auto-login
     const token = localStorage.getItem('token');
     if (token && window.location.pathname === '/') {
-        // Don't redirect automatically, allow them to press login
         document.getElementById('loginBtn').disabled = false; // Enable login button
     }
 });
@@ -33,6 +30,7 @@ async function registerUser() {
         });
 
         if (response.ok) {
+            // No alert for registration, but you can redirect after registration if needed
             alert('User registered successfully!');
         } else {
             const errorData = await response.json();
@@ -61,7 +59,7 @@ async function loginUser() {
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('token', data.token); // Store token
-            alert('Login successful!');
+            // No alert for successful login
             window.location.href = '/profile.html'; // Redirect to profile page
         } else {
             const errorData = await response.json();
@@ -138,7 +136,8 @@ async function uploadImages() {
             const data = await response.json();
             data.files.forEach(imageUrl => {
                 const img = new Image();
-                img.src = `/uploads/${imageUrl}`;
+                // Ensure the URL is correct and points to the backend server
+                img.src = `https://vwbeetle-backend.onrender.com/uploads/${imageUrl}`;
                 gallery.appendChild(img);
             });
         } else {
