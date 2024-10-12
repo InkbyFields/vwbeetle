@@ -6,9 +6,16 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
 const path = require('path');
+const fs = require('fs');
 const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
+
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
 // CORS Configuration
 app.use(cors({
@@ -17,7 +24,7 @@ app.use(cors({
     credentials: true
 }));
 
-// Serve static files dynamically
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware
@@ -38,7 +45,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: path.join(__dirname, 'uploads'),
+    uploadDir: uploadDir,
     keepExtensions: true,
   });
 
@@ -65,12 +72,12 @@ app.post('/api/users/logbook', (req, res) => {
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
-// Basic route for root
+// Serve index.html for root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
 });
 
-// Integrate the user authentication routes
+// Integrate user authentication routes
 app.use('/api/users', userRoutes);
 
 // Listen on port
