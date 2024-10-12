@@ -11,18 +11,33 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Configure CORS to allow requests from the Vercel frontend
-app.use(cors({
-  origin: 'https://vwbeetle.vercel.app',  // Allow only this origin
-  credentials: true
-}));
+// Create the 'uploads' directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Uploads directory created successfully.');
+} else {
+  console.log('Uploads directory already exists.');
+}
+
+// Set permissions on the 'uploads' folder
+try {
+  fs.chmodSync(uploadDir, '755');
+  console.log('Uploads directory permissions set to 755');
+} catch (err) {
+  console.error('Failed to set permissions on uploads directory', err);
+}
 
 // Middleware
 app.use(express.json());
 app.use(helmet());
+app.use(cors({
+  origin: 'https://vwbeetle.vercel.app', // Allow requests from Vercel frontend
+  credentials: true,
+}));
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100,
 }));
 
 // MongoDB Connection
@@ -32,31 +47,21 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
-// Ensure the 'uploads' directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log('Uploads directory created successfully.');
-} else {
-  console.log('Uploads directory already exists.');
-}
-
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: uploadDir,
+    uploadDir: uploadDir,  // Save to the correct upload directory
     keepExtensions: true,
   });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error('File upload error:', err);
       return res.status(500).json({ message: 'File upload error', error: err });
     }
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
       message: 'Files uploaded successfully',
-      files: uploadedFiles
+      files: uploadedFiles,
     });
   });
 });
@@ -72,12 +77,9 @@ app.post('/api/users/logbook', (req, res) => {
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
-// Serve static files dynamically
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Basic route for root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the homepage
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
 });
 
 // Integrate the user authentication routes
