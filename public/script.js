@@ -69,6 +69,9 @@ async function uploadImages() {
             img.alt = "Uploaded image"; // Set alt text for accessibility
             img.classList.add('uploaded-image'); // Add a class for styling
             
+            img.style.width = '150px'; // Scale down the image
+            img.style.cursor = 'pointer'; // Make it clickable
+
             // Create a container for image with delete button
             const imgContainer = document.createElement('div');
             imgContainer.classList.add('image-container');
@@ -79,6 +82,11 @@ async function uploadImages() {
             deleteBtn.classList.add('delete-btn');
             deleteBtn.addEventListener('click', () => {
                 deleteImage(imageUrl, imgContainer);
+            });
+
+            // Event to open the image in full size when clicked
+            img.addEventListener('click', () => {
+                openImageInFullSize(`${apiUrl}/uploads/${imageUrl}`);
             });
 
             imgContainer.appendChild(img);
@@ -107,6 +115,37 @@ async function deleteImage(imageUrl, imgContainer) {
         console.error('Failed to delete image:', await response.json());
         alert('Failed to delete image');
     }
+}
+
+// Function to open image in full size
+function openImageInFullSize(imageUrl) {
+    const fullSizeOverlay = document.createElement('div');
+    fullSizeOverlay.classList.add('overlay');
+    fullSizeOverlay.style.position = 'fixed';
+    fullSizeOverlay.style.top = '0';
+    fullSizeOverlay.style.left = '0';
+    fullSizeOverlay.style.width = '100vw';
+    fullSizeOverlay.style.height = '100vh';
+    fullSizeOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    fullSizeOverlay.style.display = 'flex';
+    fullSizeOverlay.style.justifyContent = 'center';
+    fullSizeOverlay.style.alignItems = 'center';
+    fullSizeOverlay.style.cursor = 'pointer';
+    
+    const fullSizeImage = new Image();
+    fullSizeImage.src = imageUrl;
+    fullSizeImage.alt = "Full-size uploaded image";
+    fullSizeImage.style.maxWidth = '90%';
+    fullSizeImage.style.maxHeight = '90%';
+    
+    fullSizeOverlay.appendChild(fullSizeImage);
+
+    // Click to close full-size image
+    fullSizeOverlay.addEventListener('click', () => {
+        document.body.removeChild(fullSizeOverlay);
+    });
+
+    document.body.appendChild(fullSizeOverlay);
 }
 
 // Function to handle user registration
@@ -153,4 +192,3 @@ async function loginUser() {
         alert(errorData.message);
     }
 }
-
