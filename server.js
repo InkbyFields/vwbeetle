@@ -40,6 +40,9 @@ app.use(rateLimit({
   max: 100,
 }));
 
+// Serve static files from the uploads folder
+app.use('/uploads', express.static(uploadDir));
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('MongoDB connected successfully');
@@ -63,6 +66,19 @@ app.post('/upload', (req, res) => {
       message: 'Files uploaded successfully',
       files: uploadedFiles,
     });
+  });
+});
+
+// Route to delete images
+app.delete('/upload/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(uploadDir, filename);
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      return res.status(500).json({ message: 'File deletion error', error: err });
+    }
+    res.status(200).json({ message: 'File deleted successfully' });
   });
 });
 
@@ -90,4 +106,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
