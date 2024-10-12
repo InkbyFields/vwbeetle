@@ -1,8 +1,14 @@
-// Add event listeners
-document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
-document.getElementById('uploadBtn').addEventListener('click', uploadImages);
-document.getElementById('registerBtn').addEventListener('click', registerUser);
-document.getElementById('loginBtn').addEventListener('click', loginUser);
+document.addEventListener('DOMContentLoaded', () => {
+    const postEntryBtn = document.getElementById('postEntryBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+
+    if (postEntryBtn) postEntryBtn.addEventListener('click', postUpdate);
+    if (uploadBtn) uploadBtn.addEventListener('click', uploadImages);
+    if (registerBtn) registerBtn.addEventListener('click', registerUser);
+    if (loginBtn) loginBtn.addEventListener('click', loginUser);
+});
 
 // Function to handle posting a logbook entry
 async function postUpdate() {
@@ -52,22 +58,20 @@ async function uploadImages() {
 
     const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
         method: 'POST',
-        body: formData,
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        },
+        body: formData
     });
 
     if (response.ok) {
         const data = await response.json(); // Get the uploaded image URLs from the backend
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `https://vwbeetle-backend.onrender.com/uploads/${imageUrl}`;
+            img.src = `/uploads/${imageUrl}`;
             gallery.appendChild(img);
         });
     } else {
-        const errorData = await response.json();
-        console.error('Failed to upload images:', errorData);
         alert('Failed to upload images');
     }
 }
@@ -88,8 +92,7 @@ async function registerUser() {
     if (response.ok) {
         alert('User registered successfully!');
     } else {
-        const errorData = await response.json();
-        alert(errorData.message);
+        alert('Failed to register user');
     }
 }
 
@@ -109,12 +112,12 @@ async function loginUser() {
     if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token); // Store token
-        alert('Login successful!');
+        window.location.href = 'profile.html'; // Redirect to profile page after login
     } else {
-        const errorData = await response.json();
-        alert(errorData.message);
+        alert('Failed to log in');
     }
 }
+
 
 // Debugging to ensure that the script runs
 console.log('Script loaded successfully');
