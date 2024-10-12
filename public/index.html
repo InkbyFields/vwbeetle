@@ -5,67 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volkswagen Beetle Restoration</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container" id="loginSection">
-        <div class="form-box">
-            <h2>Login</h2>
-            <div class="input-box">
-                <input type="text" id="usernameLogin" required />
-                <label for="usernameLogin">Username</label>
-            </div>
-            <div class="input-box">
-                <input type="password" id="passwordLogin" required />
-                <label for="passwordLogin">Password</label>
-            </div>
-            <button id="loginBtn">Login</button>
-            <p id="loginError" class="error-message"></p>
-            <p class="toggle-text">Don't have an account? <a href="#" id="showRegister">Register</a></p>
-        </div>
+    <div class="login-container">
+        <h2>Login or Register</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="loginBtn">Login</button>
+        <button id="registerBtn">Register</button>
     </div>
 
-    <div class="login-container" id="registerSection" style="display:none;">
-        <div class="form-box">
-            <h2>Register</h2>
-            <div class="input-box">
-                <input type="text" id="usernameRegister" required />
-                <label for="usernameRegister">Username</label>
-            </div>
-            <div class="input-box">
-                <input type="password" id="passwordRegister" required />
-                <label for="passwordRegister">Password</label>
-            </div>
-            <button id="registerBtn">Register</button>
-            <p id="registerError" class="error-message"></p>
-            <p class="toggle-text">Already have an account? <a href="#" id="showLogin">Login</a></p>
-        </div>
-    </div>
-
-    <div class="container" id="profileSection" style="display:none;">
+    <div class="content-container" style="display:none;">
         <header>
-            <h1>Welcome, <span id="usernameDisplay"></span></h1>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
+            <h1>Beetle Restoration Journey</h1>
         </header>
-
+        <aside>
+            <nav>
+                <ul>
+                    <li><a href="#gallery">Image Gallery</a></li>
+                    <li><a href="#logbook">Restoration Logbook</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                </ul>
+            </nav>
+        </aside>
         <main>
             <section id="gallery">
                 <h2>Image Gallery</h2>
                 <input type="file" id="imageInput" multiple accept="image/*" />
-                <button id="uploadBtn">Upload</button>
+                <button id="uploadBtn">Upload Images</button>
                 <div class="image-gallery"></div>
             </section>
             <section id="logbook">
                 <h2>Restoration Logbook</h2>
-                <textarea id="logInput" placeholder="Describe the restoration progress..."></textarea>
+                <textarea id="logInput" placeholder="Describe your progress..."></textarea>
                 <button id="postEntryBtn">Post Entry</button>
                 <div class="logbook-entries"></div>
             </section>
         </main>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
