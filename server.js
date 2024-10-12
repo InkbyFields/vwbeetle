@@ -6,11 +6,11 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
 const path = require('path');
-const { router: userRoutes } = require('./routes/userRoutes');
+const { router: userRoutes } = require('./routes/userRoutes'); // User routes
 
 const app = express();
 
-// Serve static files dynamically, regardless of where they are located
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware
@@ -19,11 +19,14 @@ app.use(helmet());
 app.use(cors());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100,
 }));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI).then(() => {
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
   console.log('MongoDB connected successfully');
 }).catch((err) => {
   console.error('MongoDB connection error:', err);
@@ -59,9 +62,9 @@ app.post('/api/users/logbook', (req, res) => {
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
-// Basic route for root
+// Basic route for serving the homepage
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Integrate the user authentication routes
