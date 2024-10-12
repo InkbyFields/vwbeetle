@@ -38,15 +38,23 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
+// Create the uploads folder if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created uploads directory');
+}
+
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: path.join(__dirname, 'uploads'),
+    uploadDir: uploadDir,
     keepExtensions: true,
   });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
+      console.error('File upload error:', err);  // Log the error for debugging
       return res.status(500).json({ message: 'File upload error', error: err });
     }
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
@@ -60,11 +68,11 @@ app.post('/upload', (req, res) => {
 // Delete an image
 app.delete('/upload/:imageName', (req, res) => {
   const imageName = req.params.imageName;
-  const filePath = path.join(__dirname, 'uploads', imageName);
+  const filePath = path.join(uploadDir, imageName);
 
   fs.unlink(filePath, (err) => {
     if (err) {
-      console.error(err);
+      console.error('Failed to delete image:', err);
       return res.status(500).json({ message: 'Failed to delete image', error: err });
     }
     res.status(200).json({ message: 'Image deleted successfully' });
