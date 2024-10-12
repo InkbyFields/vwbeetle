@@ -8,70 +8,107 @@ body, html {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
     color: #333;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 h1, h2 {
     text-align: center;
-    color: red;
+    color: #FF4136;
 }
 
 header {
-    background-color: black;
+    background-color: #111;
     color: white;
-    padding: 1rem;
+    padding: 1.5rem;
     text-align: center;
 }
 
 nav ul {
     list-style: none;
     padding: 0;
+    text-align: center;
+    margin-top: 20px;
 }
 
 nav ul li {
-    background-color: red;
-    margin: 10px 0;
-    padding: 10px;
-    text-align: center;
+    display: inline-block;
+    margin: 0 15px;
 }
 
 nav ul li a {
-    color: white;
+    color: #FF4136;
     text-decoration: none;
     font-weight: bold;
 }
 
-.login-container, .content-container {
-    max-width: 500px;
-    margin: 50px auto;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+.form-control {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
 }
 
 input, textarea, button {
-    display: block;
     width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 16px;
+    padding: 15px;
     border-radius: 5px;
+    font-size: 16px;
+}
+
+input, textarea {
+    border: 1px solid #ddd;
 }
 
 button {
-    background-color: black;
+    background-color: #111;
     color: white;
-    border: none;
     cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
 }
 
 button:hover {
-    background-color: red;
+    background-color: #FF4136;
+}
+
+.btn-alt {
+    background-color: #FF4136;
+    color: white;
+}
+
+.login-container, .profile-container {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
 }
 
 .image-gallery img {
-    max-width: 150px;
+    width: 100px;
+    height: 100px;
     margin: 10px;
-    border: 2px solid #ddd;
+    object-fit: cover;
+    border-radius: 5px;
+    transition: transform 0.2s ease;
 }
 
+.image-gallery img:hover {
+    transform: scale(1.1);
+}
+
+.logbook-entries p {
+    background: #f4f4f4;
+    padding: 10px;
+    margin-top: 10px;
+    border-left: 5px solid #FF4136;
+    border-radius: 5px;
+}
