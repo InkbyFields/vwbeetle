@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="profile-container">
+        <header>
+            <h1>Welcome, <span id="userNameDisplay"></span></h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+        <main>
+            <section class="image-upload">
+                <h2>Upload Images</h2>
+                <input type="file" id="imageInput" multiple>
+                <button id="uploadBtn">Upload</button>
+                <div class="image-gallery"></div>
+            </section>
+            <section class="logbook">
+                <h2>Restoration Logbook</h2>
+                <textarea id="logInput" placeholder="Describe your latest progress..."></textarea>
+                <button id="postEntryBtn">Post Entry</button>
+                <div class="logbook-entries"></div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
