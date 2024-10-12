@@ -115,9 +115,4 @@ async function loginUser() {
     }
 }
 
-// Debugging to ensure that the script runs
 console.log('Script loaded successfully');
-
-
-    console.log('Script loaded successfully');
-});
