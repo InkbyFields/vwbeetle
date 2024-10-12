@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('You need to log in first');
         window.location.href = '/index.html'; // Redirect to login if not authenticated
     }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/index.html'; // Redirect to login page
+    });
 });
 
 document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
