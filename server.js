@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
-const fs = require('fs'); // For checking/creating directories
+const fs = require('fs');
 const path = require('path');
 const { router: userRoutes } = require('./routes/userRoutes');
 
@@ -14,60 +14,76 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: 'https://vwbeetle.vercel.app', // Allow requests from your frontend
+    credentials: true
+}));
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,
+    windowMs: 15 * 60 * 1000,  // 15 minutes
+    max: 100,
 }));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI).then(() => {
-  console.log('MongoDB connected successfully');
+    console.log('MongoDB connected successfully');
 }).catch((err) => {
-  console.error('MongoDB connection error:', err);
+    console.error('MongoDB connection error:', err);
 });
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log('Uploads directory created');
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('Uploads directory created');
 }
 
 // File Upload Route
 app.post('/upload', (req, res) => {
-  const form = new formidable.IncomingForm({
-    uploadDir: uploadDir,
-    keepExtensions: true,
-  });
-
-  form.parse(req, (err, fields, files) => {
-    if (err) {
-      console.error('Form parse error:', err); // Log the error for debugging
-      return res.status(500).json({ message: 'File upload error', error: err.message });
-    }
-    const uploadedFiles = Object.values(files).map(file => file.newFilename);
-    res.status(201).json({
-      message: 'Files uploaded successfully',
-      files: uploadedFiles,
+    const form = new formidable.IncomingForm({
+        uploadDir: uploadDir,
+        keepExtensions: true,
+        maxFileSize: 5 * 1024 * 1024,  // 5MB size limit
+        multiples: true  // Allow multiple files
     });
-  });
+
+    form.parse(req, (err, fields, files) => {
+        if (err) {
+            console.error('Error parsing form:', err.message);
+            return res.status(500).json({ message: 'Error processing file upload', error: err.message });
+        }
+
+        // Ensure we have valid files
+        if (!files || Object.keys(files).length === 0) {
+            return res.status(400).json({ message: 'No files uploaded' });
+        }
+
+        // Collect the uploaded file names
+        const uploadedFiles = Object.values(files).map(file => {
+            console.log(`File uploaded: ${file.newFilename}`);
+            return file.newFilename;
+        });
+
+        res.status(201).json({
+            message: 'Files uploaded successfully',
+            files: uploadedFiles,
+        });
+    });
 });
 
 // Logbook Entry Route
 app.post('/api/users/logbook', (req, res) => {
-  const { entry } = req.body;
+    const { entry } = req.body;
 
-  if (!entry) {
-    return res.status(400).json({ message: 'Log entry cannot be empty' });
-  }
+    if (!entry) {
+        return res.status(400).json({ message: 'Log entry cannot be empty' });
+    }
 
-  res.status(201).json({ message: 'Log entry added successfully', entry });
+    res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
 // Basic route for root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
 });
 
 // Integrate the user authentication routes
@@ -76,5 +92,6 @@ app.use('/api/users', userRoutes);
 // Listen on port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
+
