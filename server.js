@@ -10,11 +10,10 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Configure CORS to allow requests from Vercel frontend
+// Configure CORS to allow requests from the Vercel frontend
 app.use(cors({
-  origin: 'https://vwbeetle.vercel.app',  // Allow requests from Vercel
-  methods: 'GET,POST,PUT,DELETE',
-  credentials: true, // Allow credentials
+  origin: 'https://vwbeetle.vercel.app',  // Allow only this origin
+  credentials: true
 }));
 
 // Middleware
@@ -22,11 +21,8 @@ app.use(express.json());
 app.use(helmet());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 100
 }));
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI).then(() => {
@@ -39,7 +35,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
     uploadDir: path.join(__dirname, 'uploads'),
-    keepExtensions: true,
+    keepExtensions: true
   });
 
   form.parse(req, (err, fields, files) => {
@@ -49,7 +45,7 @@ app.post('/upload', (req, res) => {
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
       message: 'Files uploaded successfully',
-      files: uploadedFiles,
+      files: uploadedFiles
     });
   });
 });
@@ -57,15 +53,20 @@ app.post('/upload', (req, res) => {
 // Logbook Entry Route
 app.post('/api/users/logbook', (req, res) => {
   const { entry } = req.body;
+
   if (!entry) {
     return res.status(400).json({ message: 'Log entry cannot be empty' });
   }
+
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
+// Serve static files dynamically
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Basic route for root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve the homepage
 });
 
 // Integrate the user authentication routes
@@ -76,4 +77,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
