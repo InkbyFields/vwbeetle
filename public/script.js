@@ -17,28 +17,30 @@ async function postUpdate() {
 
     try {
         // Send the log entry to the backend
-        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/logbook', {  // Replace with backend URL
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/logbook', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
             },
             body: JSON.stringify({ entry: entryContent })
         });
 
         if (response.ok) {
+            const data = await response.json();
             const newEntry = document.createElement('p');
-            newEntry.textContent = entryContent;
+            newEntry.textContent = data.entry;
             logContainer.appendChild(newEntry);
-            textarea.value = '';  // Clear the textarea
+            textarea.value = ''; // Clear the textarea
             alert('Log entry posted successfully!');
         } else {
             const errorData = await response.json();
-            alert('Failed to save log entry: ' + errorData.message);
+            console.error('Failed to post log entry:', errorData);
+            alert('Failed to post log entry: ' + errorData.message);
         }
     } catch (error) {
-        console.error('Failed to save log entry:', error);
-        alert('An error occurred while posting the log entry.');
+        console.error('Client-side error during logbook entry:', error);
+        alert('Error posting log entry: ' + error.message);
     }
 }
 
@@ -56,34 +58,35 @@ async function uploadImages() {
     }
 
     Array.from(files).forEach(file => {
-        formData.append('images', file);  // Append each file to the form data
+        formData.append('images', file); // Append each file to the form data
     });
 
     try {
         // Send the images to the backend
-        const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {  // Replace with backend URL
+        const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here if needed
             },
             body: formData
         });
 
         if (response.ok) {
-            const data = await response.json();  // Get the uploaded image URLs
+            const data = await response.json(); // Get the uploaded image URLs from the backend
             data.files.forEach(imageUrl => {
                 const img = new Image();
-                img.src = imageUrl;  // Show the uploaded image in the gallery
+                img.src = `https://vwbeetle-backend.onrender.com${imageUrl}`; // Adjust based on how you serve the uploaded images
                 gallery.appendChild(img);
             });
             alert('Images uploaded successfully!');
         } else {
             const errorData = await response.json();
+            console.error('Server response error:', errorData);  // Log error from the server
             alert('Failed to upload images: ' + errorData.message);
         }
     } catch (error) {
-        console.error('Failed to upload images:', error);
-        alert('An error occurred while uploading images.');
+        console.error('Client-side error during image upload:', error);  // Catch and log client-side errors
+        alert('Error uploading images: ' + error.message);
     }
 }
 
@@ -92,8 +95,13 @@ async function registerUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
+    if (!username || !password) {
+        alert('Please enter both username and password.');
+        return;
+    }
+
     try {
-        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/register', {  // Replace with backend URL
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -108,8 +116,8 @@ async function registerUser() {
             alert('Failed to register: ' + errorData.message);
         }
     } catch (error) {
-        console.error('Registration failed:', error);
-        alert('An error occurred during registration.');
+        console.error('Client-side error during registration:', error);
+        alert('Error during registration: ' + error.message);
     }
 }
 
@@ -118,8 +126,13 @@ async function loginUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
+    if (!username || !password) {
+        alert('Please enter both username and password.');
+        return;
+    }
+
     try {
-        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/login', {  // Replace with backend URL
+        const response = await fetch('https://vwbeetle-backend.onrender.com/api/users/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -129,14 +142,17 @@ async function loginUser() {
 
         if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('token', data.token);  // Store token
+            localStorage.setItem('token', data.token); // Store token
             alert('Login successful!');
         } else {
             const errorData = await response.json();
-            alert('Login failed: ' + errorData.message);
+            alert('Failed to login: ' + errorData.message);
         }
     } catch (error) {
-        console.error('Login failed:', error);
-        alert('An error occurred during login.');
+        console.error('Client-side error during login:', error);
+        alert('Error during login: ' + error.message);
     }
 }
+
+// Debugging to ensure that the script runs
+console.log('Script loaded successfully');
