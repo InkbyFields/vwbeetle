@@ -1,6 +1,5 @@
 const apiUrl = 'https://vwbeetle-backend.onrender.com'; // Backend URL
 
-// Add event listeners
 document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
 document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 document.getElementById('registerBtn').addEventListener('click', registerUser);
@@ -65,7 +64,9 @@ async function uploadImages() {
         const data = await response.json();
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `${apiUrl}/uploads/${imageUrl}`;
+            img.src = `${apiUrl}/uploads/${imageUrl}`; // Correct path for the image
+            img.alt = imageUrl; // Provide an alt attribute for the image
+
             gallery.appendChild(img);
 
             // Add delete functionality
@@ -141,3 +142,4 @@ async function loginUser() {
         alert(errorData.message);
     }
 }
+
