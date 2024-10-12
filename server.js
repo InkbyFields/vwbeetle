@@ -52,6 +52,7 @@ app.post('/upload', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
+      console.error(err); // Log the error for debugging
       return res.status(500).json({ message: 'File upload error', error: err });
     }
     const uploadedFiles = Object.values(files).map(file => path.basename(file.filepath));
