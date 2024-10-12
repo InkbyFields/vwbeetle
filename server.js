@@ -12,8 +12,10 @@ const app = express();
 
 // CORS setup to allow requests from your frontend on Vercel
 app.use(cors({
-    origin: 'https://vwbeetle.vercel.app', // Replace with your frontend domain
+    origin: 'https://vwbeetle.vercel.app', // Frontend URL
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Middleware
@@ -92,4 +94,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
