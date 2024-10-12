@@ -52,10 +52,10 @@ app.post('/upload', (req, res) => {
       return res.status(400).json({ message: 'No files were uploaded.' });
     }
 
-    const file = files.images; // Adjust based on your input name for images
+    const file = files.images;
     const uploadParams = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME, // The name of your S3 bucket
-      Key: `${Date.now()}_${file.originalFilename}`, // Unique filename
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: `${Date.now()}_${file.originalFilename}`,
       Body: fs.createReadStream(file.filepath),
       ContentType: file.mimetype
     };
@@ -68,7 +68,7 @@ app.post('/upload', (req, res) => {
 
       res.status(201).json({
         message: 'Files uploaded successfully',
-        fileUrl: data.Location // This is the URL of the uploaded file
+        fileUrl: data.Location
       });
     });
   });
@@ -101,3 +101,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
