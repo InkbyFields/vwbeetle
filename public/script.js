@@ -4,7 +4,6 @@ document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
 document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
-// Switch between login and register views
 document.getElementById('showRegister').addEventListener('click', () => {
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('registerSection').style.display = 'block';
@@ -133,3 +132,4 @@ async function uploadImages() {
         alert('Failed to upload images');
     }
 }
+
