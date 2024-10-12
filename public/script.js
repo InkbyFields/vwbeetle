@@ -1,7 +1,6 @@
 const apiUrl = 'https://vwbeetle-backend.onrender.com'; // Backend URL
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if the user is logged in and load profile data
     if (localStorage.getItem('token')) {
         loadProfile();
     } else {
@@ -23,7 +22,6 @@ async function loadProfile() {
     const gallery = document.querySelector('.image-gallery');
     gallery.innerHTML = ''; // Clear the gallery
 
-    // Fetch user images (replace with your API if different)
     const response = await fetch(`${apiUrl}/api/users/profile`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
