@@ -4,6 +4,19 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const router = express.Router();
 
+// Middleware to protect routes
+const authenticate = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) return res.status(401).send('Access denied');
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        res.status(400).send('Invalid token');
+    }
+};
+
 // Input validation function
 const validateInput = (username, password) => {
     const errors = [];
@@ -16,10 +29,10 @@ const validateInput = (username, password) => {
     return errors;
 };
 
-// User registration route
+// Register a new user
 router.post('/register', async (req, res) => {
     try {
-        const { username, password, email } = req.body;
+        const { username, password } = req.body;
 
         // Validate input
         const errors = validateInput(username, password);
@@ -27,20 +40,17 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: errors });
         }
 
-        // Check if the username or email already exists
+        // Check if the username already exists
         const existingUser = await User.findOne({ username });
-        const existingEmail = await User.findOne({ email });
-        if (existingUser || existingEmail) {
-            return res.status(400).json({ message: 'Username or email already exists.' });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists.' });
         }
 
-        // Create a new user
-        const user = new User({ username, password, email });
+        const user = new User({ username, password });
         await user.save();
-
-        res.status(201).json({ message: 'User registered successfully' });
+        res.status(201).send('User registered successfully');
     } catch (error) {
-        res.status(500).json({ message: 'Server error during registration' });
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -55,18 +65,15 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: errors });
         }
 
-        // Find the user by username
         const user = await User.findOne({ username });
         if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).send('Authentication failed');
         }
 
-        // Generate JWT token
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ token, message: 'Login successful' });
+        res.json({ token });
     } catch (error) {
-        res.status(500).json({ message: 'Server error during login' });
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -76,70 +83,19 @@ router.post('/reset-password', async (req, res) => {
     try {
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).send('User not found');
         }
-
-        user.password = newPassword;
+        user.password = newPassword; // Hash this before saving
         await user.save();
-        res.json({ message: 'Password reset successfully' });
+        res.send('Password reset successfully');
     } catch (error) {
-        res.status(500).json({ message: 'Server error during password reset' });
+        res.status(500).json({ message: error.message });
     }
 });
 
-// Profile update route
+// Profile update route (add this as needed)
 router.put('/update-profile', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const { email, bio, profilePicture } = req.body;
-
-        // Update the profile with valid inputs
-        if (email) user.email = email;
-        if (bio) user.bio = bio;
-        if (profilePicture) user.profilePicture = profilePicture;
-
-        await user.save();
-        res.json({ message: 'Profile updated successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error during profile update' });
-    }
+    // Handle profile updates (e.g., bio, profile picture)
 });
-
-// Route to fetch user profile data
-router.get('/profile', authenticate, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.json({
-            username: user.username,
-            email: user.email,
-            bio: user.bio,
-            profilePicture: user.profilePicture,
-            images: user.images || []
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error during profile fetch' });
-    }
-});
-
-// Middleware to protect routes
-const authenticate = (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ message: 'Access denied, no token provided' });
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (err) {
-        res.status(400).json({ message: 'Invalid token' });
-    }
-};
 
 module.exports = { router, authenticate };
