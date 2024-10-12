@@ -5,26 +5,22 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
+const fs = require('fs');
 const path = require('path');
 const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Configure CORS to allow requests from Vercel
+// Middleware
+app.use(express.json());
+app.use(helmet());
 app.use(cors({
   origin: 'https://vwbeetle.vercel.app',
   credentials: true
 }));
-
-// Middleware
-app.use(express.json());
-app.use(helmet());
 app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,  // limit each IP to 100 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 100
 }));
 
 // MongoDB Connection
@@ -34,11 +30,17 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: path.join(__dirname, 'uploads'),
-    keepExtensions: true,
+    uploadDir: uploadsDir,
+    keepExtensions: true
   });
 
   form.parse(req, (err, fields, files) => {
@@ -48,7 +50,7 @@ app.post('/upload', (req, res) => {
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
       message: 'Files uploaded successfully',
-      files: uploadedFiles,
+      files: uploadedFiles
     });
   });
 });
@@ -64,9 +66,12 @@ app.post('/api/users/logbook', (req, res) => {
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Basic route for root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Integrate the user authentication routes
@@ -77,3 +82,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
