@@ -155,3 +155,4 @@ async function postUpdate() {
 // Check if the user is already logged in when the page loads
 window.onload = checkLogin;
 
+
