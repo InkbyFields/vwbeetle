@@ -30,10 +30,13 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists and create if not
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
+  console.log('Created uploads directory');
+} else {
+  console.log('Uploads directory already exists');
 }
 
 // File Upload Route
@@ -45,8 +48,13 @@ app.post('/upload', (req, res) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
+      console.error('Error during file parsing:', err); // Enhanced error logging
       return res.status(500).json({ message: 'File upload error', error: err });
     }
+    if (!files || Object.keys(files).length === 0) {
+      return res.status(400).json({ message: 'No files were uploaded.' });
+    }
+
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
       message: 'Files uploaded successfully',
@@ -82,4 +90,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
