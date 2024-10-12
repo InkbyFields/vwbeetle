@@ -64,9 +64,7 @@ async function uploadImages() {
         const data = await response.json();
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `${apiUrl}/uploads/${imageUrl}`; // Correct path for the image
-            img.alt = imageUrl; // Provide an alt attribute for the image
-
+            img.src = `${apiUrl}/uploads/${imageUrl}`;
             gallery.appendChild(img);
 
             // Add delete functionality
