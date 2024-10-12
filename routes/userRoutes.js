@@ -33,8 +33,7 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Username already exists.' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 12);
-        const user = new User({ username, password: hashedPassword });
+        const user = new User({ username, password });
         await user.save();
         res.status(201).send('User registered successfully');
     } catch (error) {
@@ -42,22 +41,24 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login route
+// Updated Login route
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validate input
-        const errors = validateInput(username, password);
-        if (errors.length > 0) {
-            return res.status(400).json({ message: errors });
-        }
-
+        // Find the user by username
         const user = await User.findOne({ username });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).send('Authentication failed');
+        if (!user) {
+            return res.status(401).send('Authentication failed. User not found.');
         }
 
+        // Compare the provided password with the hashed password
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+            return res.status(401).send('Authentication failed. Invalid password.');
+        }
+
+        // Generate a token if login is successful
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
@@ -65,6 +66,33 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = { router };
+// Password reset route
+router.post('/reset-password', async (req, res) => {
+    const { username, newPassword } = req.body;
+    try {
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        user.password = newPassword; // Hash this before saving
+        await user.save();
+        res.send('Password reset successfully');
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
+// Middleware to protect routes
+const authenticate = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) return res.status(401).send('Access denied');
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        res.status(400).send('Invalid token');
+    }
+};
 
+module.exports = { router, authenticate };
