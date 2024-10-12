@@ -1,7 +1,14 @@
-document.getElementById('loginBtn')?.addEventListener('click', loginUser);
-document.getElementById('registerBtn')?.addEventListener('click', registerUser);
-document.getElementById('uploadBtn')?.addEventListener('click', uploadImages);
-document.getElementById('postEntryBtn')?.addEventListener('click', postUpdate);
+// Select buttons and input fields
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const postEntryBtn = document.getElementById('postEntryBtn');
+
+// Add event listeners
+loginBtn?.addEventListener('click', loginUser);
+registerBtn?.addEventListener('click', registerUser);
+uploadBtn?.addEventListener('click', uploadImages);
+postEntryBtn?.addEventListener('click', postUpdate);
 
 // Function to handle user registration
 async function registerUser() {
@@ -21,6 +28,7 @@ async function registerUser() {
 
         if (response.ok) {
             alert('User registered successfully');
+            window.location.href = '/login.html'; // Redirect to login page
         } else {
             const errorData = await response.json();
             alert(errorData.message);
@@ -48,14 +56,24 @@ async function loginUser() {
 
         if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('token', data.token); // Store the token
+            localStorage.setItem('token', data.token); // Store token
             alert('Login successful');
+            window.location.href = '/profile.html'; // Redirect to profile page after login
         } else {
             const errorData = await response.json();
             alert(errorData.message);
         }
     } catch (error) {
         console.error('Error during login:', error);
+    }
+}
+
+// Function to check if the user is logged in
+function checkLogin() {
+    const token = localStorage.getItem('token');
+    if (token) {
+        // Redirect to the profile if the user is logged in
+        window.location.href = '/profile.html';
     }
 }
 
@@ -133,4 +151,7 @@ async function postUpdate() {
         console.error('Error during logbook entry:', error);
     }
 }
+
+// Check if the user is already logged in when the page loads
+window.onload = checkLogin;
 
