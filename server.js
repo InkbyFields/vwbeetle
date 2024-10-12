@@ -5,20 +5,16 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
+const fs = require('fs'); // For checking/creating directories
 const path = require('path');
 const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Serve static files dynamically, regardless of where they are located
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(cors({
-    origin: '*', // Enable CORS for all origins
-}));
+app.use(cors());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   max: 100,
@@ -31,16 +27,24 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Uploads directory created');
+}
+
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: path.join(__dirname, 'uploads'),
+    uploadDir: uploadDir,
     keepExtensions: true,
   });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      return res.status(500).json({ message: 'File upload error', error: err });
+      console.error('Form parse error:', err); // Log the error for debugging
+      return res.status(500).json({ message: 'File upload error', error: err.message });
     }
     const uploadedFiles = Object.values(files).map(file => file.newFilename);
     res.status(201).json({
