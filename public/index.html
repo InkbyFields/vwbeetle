@@ -3,55 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volkswagen Beetle Restoration</title>
+    <title>Volkswagen Beetle Restoration - Login</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Beetle Restoration Journey</h1>
-        <nav>
-            <ul class="nav-links">
-                <li><a href="#gallery">Image Gallery</a></li>
-                <li><a href="#logbook">Restoration Logbook</a></li>
-                <li><a href="#profile">Profile</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <!-- Image Gallery Section -->
-        <section id="gallery" class="section">
-            <h2>Image Gallery</h2>
-            <input type="file" id="imageInput" multiple accept="image/*" />
-            <button id="uploadBtn" class="action-btn">Upload</button>
-            <div class="image-gallery"></div>
-        </section>
-
-        <!-- Restoration Logbook Section -->
-        <section id="logbook" class="section">
-            <h2>Restoration Logbook</h2>
-            <textarea id="logInput" placeholder="Describe the restoration progress..."></textarea>
-            <button id="postEntryBtn" class="action-btn">Post Entry</button>
-            <div class="logbook-entries"></div>
-        </section>
-
-        <!-- Profile Section -->
-        <section id="profile" class="section">
-            <h2>User Profile</h2>
-            <input type="text" id="username" placeholder="Username" />
-            <input type="password" id="password" placeholder="Password" />
-            <button id="loginBtn" class="action-btn">Login</button>
-            <button id="registerBtn" class="action-btn">Register</button>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Beetle Restoration Project</p>
-    </footer>
-
+    <div class="login-container">
+        <h1>Volkswagen Beetle Restoration</h1>
+        <div class="login-box">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="loginBtn">Login</button>
+            <p>Don't have an account? <span id="registerLink">Sign Up</span></p>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
+
