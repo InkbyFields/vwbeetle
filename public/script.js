@@ -14,7 +14,7 @@ async function uploadImages() {
   }
 
   Array.from(files).forEach(file => {
-    formData.append('images', file); // Append each file to the form data
+    formData.append('images', file);
   });
 
   try {
@@ -41,11 +41,13 @@ async function uploadImages() {
         gallery.appendChild(container);
       });
     } else {
-      console.error('Failed to upload images:', await response.json());
+      const errorData = await response.json();
+      console.error('Failed to upload images:', errorData);
       alert('Failed to upload images');
     }
   } catch (error) {
     console.error('Error during image upload:', error);
+    alert('Error during image upload');
   }
 }
 
@@ -61,12 +63,12 @@ async function deleteImage(filename, imgElement, deleteButton) {
       deleteButton.remove();
       alert('Image deleted successfully');
     } else {
-      console.error('Failed to delete image:', await response.json());
+      const errorData = await response.json();
+      console.error('Failed to delete image:', errorData);
       alert('Failed to delete image');
     }
   } catch (error) {
     console.error('Error during image deletion:', error);
+    alert('Error during image deletion');
   }
 }
-
-
