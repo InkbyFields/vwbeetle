@@ -21,9 +21,11 @@
     "helmet": "^4.6.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.1",
-    "aws-sdk": "^2.1234.0"
+    "aws-sdk": "^2.1234.0", // AWS SDK for S3 image uploads
+    "fs-extra": "^10.0.0"   // Added fs-extra for better file handling
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
-  }
+  },
+  "license": "MIT"
 }
