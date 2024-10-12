@@ -1,4 +1,4 @@
-const backendUrl = https://vwbeetle.vercel.app/; // Replace with your actual backend URL
+const backendUrl = 'https://vwbeetle.vercel.app'; // Updated to your Vercel URL
 
 document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
 document.getElementById('uploadBtn').addEventListener('click', uploadImages);
@@ -22,7 +22,7 @@ async function postUpdate() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({ entry: entryContent })
     });
@@ -52,23 +52,23 @@ async function uploadImages() {
     }
 
     Array.from(files).forEach(file => {
-        formData.append('images', file); // Append each file to the form data
+        formData.append('images', file);
     });
 
     // Send the images to the backend
     const response = await fetch(`${backendUrl}/upload`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: formData
     });
 
     if (response.ok) {
-        const data = await response.json(); // Get the uploaded image URLs from the backend
+        const data = await response.json();
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `/uploads/${imageUrl}`; // Adjust based on how you serve the uploaded images
+            img.src = `/uploads/${imageUrl}`;
             gallery.appendChild(img);
         });
     } else {
@@ -113,7 +113,7 @@ async function loginUser() {
 
     if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('token', data.token); // Store token
+        localStorage.setItem('token', data.token);
         alert('Login successful!');
     } else {
         const errorData = await response.json();
