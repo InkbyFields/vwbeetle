@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const formidable = require('formidable');
 const fs = require('fs');
 const path = require('path');
+const AWS = require('aws-sdk'); // Import AWS SDK
 const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
@@ -30,35 +31,46 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
-// Ensure uploads directory exists and create if not
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-  console.log('Created uploads directory');
-} else {
-  console.log('Uploads directory already exists');
-}
+// AWS S3 Configuration
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
 
-// File Upload Route
+// File Upload Route to S3
 app.post('/upload', (req, res) => {
-  const form = new formidable.IncomingForm({
-    uploadDir: uploadsDir,
-    keepExtensions: true
-  });
+  const form = new formidable.IncomingForm();
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error('Error during file parsing:', err); // Enhanced error logging
+      console.error('Error during file parsing:', err);
       return res.status(500).json({ message: 'File upload error', error: err });
     }
+
     if (!files || Object.keys(files).length === 0) {
       return res.status(400).json({ message: 'No files were uploaded.' });
     }
 
-    const uploadedFiles = Object.values(files).map(file => file.newFilename);
-    res.status(201).json({
-      message: 'Files uploaded successfully',
-      files: uploadedFiles
+    // Upload to S3
+    const file = files.images; // Adjust based on your input name for images
+    const uploadParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME, // The name of your S3 bucket
+      Key: `${Date.now()}_${file.originalFilename}`, // Unique filename
+      Body: fs.createReadStream(file.filepath),
+      ContentType: file.mimetype,
+    };
+
+    s3.upload(uploadParams, (s3Err, data) => {
+      if (s3Err) {
+        console.error('Error uploading to S3:', s3Err);
+        return res.status(500).json({ message: 'S3 upload error', error: s3Err });
+      }
+
+      res.status(201).json({
+        message: 'Files uploaded successfully',
+        fileUrl: data.Location, // This is the URL of the uploaded file
+      });
     });
   });
 });
