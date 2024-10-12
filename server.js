@@ -11,26 +11,14 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// CORS setup to allow requests from Vercel frontend
-const corsOptions = {
-  origin: 'https://vwbeetle.vercel.app', // Frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
-// Serve static files
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('Created uploads directory');
-}
-app.use('/uploads', express.static(uploadsDir));
-
 // Middleware
 app.use(express.json());
 app.use(helmet());
+app.use(cors({
+  origin: 'https://vwbeetle.vercel.app', // Vercel frontend URL
+  methods: 'GET,POST,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   max: 100,
@@ -43,28 +31,44 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: uploadsDir,
+    uploadDir: path.join(__dirname, 'uploads'),
     keepExtensions: true,
   });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
-      console.error('File upload error:', err);
       return res.status(500).json({ message: 'File upload error', error: err });
     }
 
-    const uploadedFiles = Object.values(files).map(file => {
-      const fileUrl = `/uploads/${path.basename(file.filepath)}`; // Get the filename only
-      return fileUrl;
-    });
+    const uploadedFiles = Object.values(files).map(file => ({
+      filename: file.newFilename,
+      filepath: `/uploads/${file.newFilename}`
+    }));
 
     res.status(201).json({
       message: 'Files uploaded successfully',
       files: uploadedFiles,
     });
+  });
+});
+
+// DELETE image route
+app.delete('/upload/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filepath = path.join(__dirname, 'uploads', filename);
+
+  fs.unlink(filepath, (err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to delete file', error: err });
+    }
+
+    res.status(200).json({ message: 'File deleted successfully' });
   });
 });
 
@@ -76,6 +80,7 @@ app.post('/api/users/logbook', (req, res) => {
     return res.status(400).json({ message: 'Log entry cannot be empty' });
   }
 
+  // Here you would typically save the log entry to the database
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
