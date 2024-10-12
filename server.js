@@ -11,28 +11,17 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Create the 'uploads' directory if it doesn't exist
+// Define the uploads directory
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
-  console.log('Uploads directory created successfully.');
-} else {
-  console.log('Uploads directory already exists.');
-}
-
-// Set permissions on the 'uploads' folder
-try {
-  fs.chmodSync(uploadDir, '755');
-  console.log('Uploads directory permissions set to 755');
-} catch (err) {
-  console.error('Failed to set permissions on uploads directory', err);
 }
 
 // Middleware
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'https://vwbeetle.vercel.app', // Allow requests from Vercel frontend
+  origin: 'https://vwbeetle.vercel.app',  // Allow requests from your frontend
   credentials: true,
 }));
 app.use(rateLimit({
@@ -40,7 +29,7 @@ app.use(rateLimit({
   max: 100,
 }));
 
-// Serve static files from the uploads folder
+// Serve static files (images) from the uploads directory
 app.use('/uploads', express.static(uploadDir));
 
 // MongoDB Connection
@@ -53,7 +42,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: uploadDir,  // Save to the correct upload directory
+    uploadDir: uploadDir,
     keepExtensions: true,
   });
 
@@ -61,7 +50,7 @@ app.post('/upload', (req, res) => {
     if (err) {
       return res.status(500).json({ message: 'File upload error', error: err });
     }
-    const uploadedFiles = Object.values(files).map(file => file.newFilename);
+    const uploadedFiles = Object.values(files).map(file => path.basename(file.filepath));
     res.status(201).json({
       message: 'Files uploaded successfully',
       files: uploadedFiles,
@@ -69,7 +58,7 @@ app.post('/upload', (req, res) => {
   });
 });
 
-// Route to delete images
+// Route to delete an image
 app.delete('/upload/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(uploadDir, filename);
@@ -95,7 +84,7 @@ app.post('/api/users/logbook', (req, res) => {
 
 // Basic route for root
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Integrate the user authentication routes
