@@ -11,28 +11,23 @@ const { router: userRoutes } = require('./routes/userRoutes');
 
 const app = express();
 
-// Ensure upload directory exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-// CORS Configuration
-app.use(cors({
-    origin: 'https://vwbeetle.vercel.app', // Allow only your Vercel frontend domain
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true
-}));
-
-// Serve static files
+// Middleware for static files and CORS setup
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware
+// CORS configuration to allow requests from the frontend
+const corsOptions = {
+  origin: 'https://vwbeetle.vercel.app', // Your Vercel frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+
+// Other Middleware
 app.use(express.json());
 app.use(helmet());
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutes
-    max: 100,
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100,
 }));
 
 // MongoDB Connection
@@ -42,10 +37,16 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.error('MongoDB connection error:', err);
 });
 
+// Ensure that the uploads folder exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 // File Upload Route
 app.post('/upload', (req, res) => {
   const form = new formidable.IncomingForm({
-    uploadDir: uploadDir,
+    uploadDir: uploadsDir,
     keepExtensions: true,
   });
 
@@ -64,20 +65,18 @@ app.post('/upload', (req, res) => {
 // Logbook Entry Route
 app.post('/api/users/logbook', (req, res) => {
   const { entry } = req.body;
-
   if (!entry) {
     return res.status(400).json({ message: 'Log entry cannot be empty' });
   }
-
   res.status(201).json({ message: 'Log entry added successfully', entry });
 });
 
-// Serve index.html for root
+// Basic route for root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the homepage
 });
 
-// Integrate user authentication routes
+// Integrate the user authentication routes
 app.use('/api/users', userRoutes);
 
 // Listen on port
@@ -85,4 +84,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
 
