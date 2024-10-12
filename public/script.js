@@ -1,51 +1,100 @@
+const backendUrl = https://vwbeetle.vercel.app/; // Replace with your actual backend URL
+
+document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
+document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 document.getElementById('registerBtn').addEventListener('click', registerUser);
 document.getElementById('loginBtn').addEventListener('click', loginUser);
 
-// Function to show loading state on buttons
-function showLoading(button) {
-    button.disabled = true;
-    button.textContent = 'Loading...'; // Change the button text to "Loading..."
+// Function to handle posting a logbook entry
+async function postUpdate() {
+    const logContainer = document.querySelector('.logbook-entries');
+    const textarea = document.getElementById('logInput');
+    const entryContent = textarea.value;
+
+    // Validate input
+    if (!entryContent) {
+        alert('Please enter a log entry.');
+        return;
+    }
+
+    // Send the log entry to the backend
+    const response = await fetch(`${backendUrl}/api/users/logbook`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
+        },
+        body: JSON.stringify({ entry: entryContent })
+    });
+
+    if (response.ok) {
+        const newEntry = document.createElement('p');
+        newEntry.textContent = entryContent;
+        logContainer.appendChild(newEntry);
+        textarea.value = ''; // Clear the textarea
+    } else {
+        console.error('Failed to save log entry:', await response.json());
+        alert('Failed to save log entry');
+    }
 }
 
-// Function to hide loading state on buttons
-function hideLoading(button, originalText) {
-    button.disabled = false;
-    button.textContent = originalText; // Change the button text back to the original
+// Function to handle image uploads
+async function uploadImages() {
+    const imageInput = document.getElementById('imageInput');
+    const gallery = document.querySelector('.image-gallery');
+    const files = imageInput.files;
+    const formData = new FormData();
+
+    // Validate file input
+    if (files.length === 0) {
+        alert('Please select at least one image to upload.');
+        return;
+    }
+
+    Array.from(files).forEach(file => {
+        formData.append('images', file); // Append each file to the form data
+    });
+
+    // Send the images to the backend
+    const response = await fetch(`${backendUrl}/upload`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token here
+        },
+        body: formData
+    });
+
+    if (response.ok) {
+        const data = await response.json(); // Get the uploaded image URLs from the backend
+        data.files.forEach(imageUrl => {
+            const img = new Image();
+            img.src = `/uploads/${imageUrl}`; // Adjust based on how you serve the uploaded images
+            gallery.appendChild(img);
+        });
+    } else {
+        console.error('Failed to upload images:', await response.json());
+        alert('Failed to upload images');
+    }
 }
 
 // Function to handle user registration
 async function registerUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const button = document.getElementById('registerBtn');
 
-    if (!username || !password) {
-        alert('Please enter both username and password.');
-        return;
-    }
+    const response = await fetch(`${backendUrl}/api/users/register`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-    showLoading(button); // Show loading indicator
-
-    try {
-        const response = await fetch('/api/users/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            alert('User registered successfully!');
-        } else {
-            alert('Registration failed: ' + data.message);
-        }
-    } catch (error) {
-        alert('An error occurred while registering the user.');
-        console.error(error);
-    } finally {
-        hideLoading(button, 'Register'); // Hide loading indicator
+    if (response.ok) {
+        alert('User registered successfully!');
+    } else {
+        const errorData = await response.json();
+        alert(errorData.message);
     }
 }
 
@@ -53,43 +102,24 @@ async function registerUser() {
 async function loginUser() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const button = document.getElementById('loginBtn');
 
-    if (!username || !password) {
-        alert('Please enter both username and password.');
-        return;
-    }
+    const response = await fetch(`${backendUrl}/api/users/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
 
-    showLoading(button); // Show loading indicator
-
-    try {
-        const response = await fetch('/api/users/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password })
-        });
-
+    if (response.ok) {
         const data = await response.json();
-        if (response.ok) {
-            localStorage.setItem('token', data.token); // Store JWT token
-            alert('Login successful!');
-        } else {
-            alert('Login failed: ' + data.message);
-        }
-    } catch (error) {
-        alert('An error occurred while logging in.');
-        console.error(error);
-    } finally {
-        hideLoading(button, 'Login'); // Hide loading indicator
+        localStorage.setItem('token', data.token); // Store token
+        alert('Login successful!');
+    } else {
+        const errorData = await response.json();
+        alert(errorData.message);
     }
 }
 
 // Debugging to ensure that the script runs
 console.log('Script loaded successfully');
-
-
-
-
-
