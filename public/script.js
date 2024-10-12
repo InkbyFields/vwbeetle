@@ -1,16 +1,10 @@
+const apiUrl = 'https://vwbeetle-backend.onrender.com'; // Backend URL
+
+// Add event listeners
 document.getElementById('postEntryBtn').addEventListener('click', postUpdate);
 document.getElementById('uploadBtn').addEventListener('click', uploadImages);
 document.getElementById('registerBtn').addEventListener('click', registerUser);
 document.getElementById('loginBtn').addEventListener('click', loginUser);
-
-const response = await fetch('https://vwbeetle-backend.onrender.com/upload', {
-    method: 'POST',
-    headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}` // Add token if required
-    },
-    body: formData
-});
-
 
 // Function to handle posting a logbook entry
 async function postUpdate() {
@@ -147,6 +141,3 @@ async function loginUser() {
         alert(errorData.message);
     }
 }
-
-// Debugging to ensure that the script runs
-console.log('Script loaded successfully');
