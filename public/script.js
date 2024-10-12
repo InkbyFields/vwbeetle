@@ -62,15 +62,28 @@ async function uploadImages() {
 
     if (response.ok) {
         const data = await response.json();
+        
         data.files.forEach(imageUrl => {
             const img = new Image();
-            img.src = `${apiUrl}/uploads/${imageUrl}`;
-            gallery.appendChild(img);
-
-            // Add delete functionality
-            img.addEventListener('click', () => {
-                deleteImage(imageUrl, img);
+            img.src = `${apiUrl}/uploads/${imageUrl}`; // Corrected path to show image
+            img.alt = "Uploaded image"; // Set alt text for accessibility
+            img.classList.add('uploaded-image'); // Add a class for styling
+            
+            // Create a container for image with delete button
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('image-container');
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.addEventListener('click', () => {
+                deleteImage(imageUrl, imgContainer);
             });
+
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(deleteBtn);
+            gallery.appendChild(imgContainer);
         });
     } else {
         console.error('Failed to upload images:', await response.json());
@@ -79,7 +92,7 @@ async function uploadImages() {
 }
 
 // Function to delete an image
-async function deleteImage(imageUrl, imgElement) {
+async function deleteImage(imageUrl, imgContainer) {
     const response = await fetch(`${apiUrl}/upload/${imageUrl}`, {
         method: 'DELETE',
         headers: {
@@ -88,7 +101,7 @@ async function deleteImage(imageUrl, imgElement) {
     });
 
     if (response.ok) {
-        imgElement.remove(); // Remove image from the gallery
+        imgContainer.remove(); // Remove image container (image and delete button)
         alert('Image deleted successfully');
     } else {
         console.error('Failed to delete image:', await response.json());
@@ -140,5 +153,4 @@ async function loginUser() {
         alert(errorData.message);
     }
 }
-
 
