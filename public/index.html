@@ -7,43 +7,53 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login or Register</h2>
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button id="loginBtn">Login</button>
-        <button id="registerBtn">Register</button>
-    </div>
+    <div class="container">
+        <div class="login-container" id="loginSection">
+            <h2>Login or Register</h2>
+            <div class="form-control">
+                <input type="text" id="username" placeholder="Enter Username" required>
+            </div>
+            <div class="form-control">
+                <input type="password" id="password" placeholder="Enter Password" required>
+            </div>
+            <div class="form-actions">
+                <button id="loginBtn" class="btn">Login</button>
+                <button id="registerBtn" class="btn btn-alt">Register</button>
+            </div>
+        </div>
 
-    <div class="content-container" style="display:none;">
-        <header>
-            <h1>Beetle Restoration Journey</h1>
-        </header>
-        <aside>
-            <nav>
-                <ul>
-                    <li><a href="#gallery">Image Gallery</a></li>
-                    <li><a href="#logbook">Restoration Logbook</a></li>
-                    <li><a href="#profile">Profile</a></li>
-                </ul>
-            </nav>
-        </aside>
-        <main>
-            <section id="gallery">
-                <h2>Image Gallery</h2>
-                <input type="file" id="imageInput" multiple accept="image/*" />
-                <button id="uploadBtn">Upload Images</button>
-                <div class="image-gallery"></div>
-            </section>
-            <section id="logbook">
-                <h2>Restoration Logbook</h2>
-                <textarea id="logInput" placeholder="Describe your progress..."></textarea>
-                <button id="postEntryBtn">Post Entry</button>
-                <div class="logbook-entries"></div>
-            </section>
-        </main>
-    </div>
+        <div class="profile-container" id="profileSection" style="display: none;">
+            <header>
+                <h1>Welcome to Your Restoration Profile</h1>
+            </header>
+            <aside>
+                <nav>
+                    <ul>
+                        <li><a href="#gallery">Image Gallery</a></li>
+                        <li><a href="#logbook">Restoration Logbook</a></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main>
+                <section id="gallery">
+                    <h2>Upload Image to Gallery</h2>
+                    <div class="form-control">
+                        <input type="file" id="imageInput" multiple accept="image/*" />
+                    </div>
+                    <button id="uploadBtn" class="btn">Upload Images</button>
+                    <div class="image-gallery"></div>
+                </section>
 
+                <section id="logbook">
+                    <h2>Restoration Logbook</h2>
+                    <textarea id="logInput" placeholder="Describe your restoration progress..."></textarea>
+                    <button id="postEntryBtn" class="btn">Post Entry</button>
+                    <div class="logbook-entries"></div>
+                </section>
+            </main>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
+
