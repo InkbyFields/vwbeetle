@@ -25,7 +25,12 @@ app.use('/uploads', express.static(uploadsDir)); // Serve the uploaded images
 // Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(cors());
+
+// Allow CORS requests from your Vercel frontend
+app.use(cors({
+  origin: 'https://vwbeetle.vercel.app'  // Allow only your frontend to access the backend
+}));
+
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   max: 100,
@@ -81,3 +86,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
