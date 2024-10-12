@@ -1,23 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const loginSection = document.getElementById('loginSection');
+    const profileSection = document.getElementById('profileSection');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
     const uploadBtn = document.getElementById('uploadBtn');
     const postEntryBtn = document.getElementById('postEntryBtn');
 
-    if (loginBtn) {
-        loginBtn.addEventListener('click', loginUser);
-    }
+    loginBtn.addEventListener('click', loginUser);
+    registerBtn.addEventListener('click', registerUser);
+    uploadBtn.addEventListener('click', uploadImages);
+    postEntryBtn.addEventListener('click', postUpdate);
 
-    if (registerBtn) {
-        registerBtn.addEventListener('click', registerUser);
-    }
-
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', uploadImages);
-    }
-
-    if (postEntryBtn) {
-        postEntryBtn.addEventListener('click', postUpdate);
+    function showProfilePage() {
+        loginSection.style.display = 'none';
+        profileSection.style.display = 'block';
     }
 
     async function loginUser() {
@@ -36,11 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
-                document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.content-container').style.display = 'block';
+                showProfilePage();
             } else {
-                const errorData = await response.json();
-                alert(errorData.message);
+                alert('Invalid login credentials');
             }
         } catch (error) {
             console.error('Error during login:', error);
@@ -61,10 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                alert('User registered successfully');
+                alert('User registered successfully. Please log in.');
             } else {
-                const errorData = await response.json();
-                alert(errorData.message);
+                alert('Error registering user');
             }
         } catch (error) {
             console.error('Error during registration:', error);
@@ -98,8 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     gallery.appendChild(img);
                 });
             } else {
-                const errorData = await response.json();
-                console.error('Failed to upload images:', errorData);
+                alert('Failed to upload images');
             }
         } catch (error) {
             console.error('Error during image upload:', error);
@@ -124,8 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 newEntry.textContent = entryContent;
                 document.querySelector('.logbook-entries').appendChild(newEntry);
             } else {
-                const errorData = await response.json();
-                console.error('Failed to post logbook entry:', errorData);
+                alert('Failed to post logbook entry');
             }
         } catch (error) {
             console.error('Error during posting logbook entry:', error);
